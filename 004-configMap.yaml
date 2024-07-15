@@ -1,0 +1,50 @@
+# ConfigMap 
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-cm 
+data:
+  BATCH: "56"
+  ENV: "dev"
+  MANAGER: "steve"
+  MONGO_URL: "mongodb.cc.com"
+
+--- 
+
+# Pod with ConfigMap 
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod-with-cm
+spec:
+  containers:
+  - name: nginx-cnt
+    image: nginx:latest 
+    ports:
+      - containerPort: 80
+    envFrom:
+    - configMapRef:
+        name: nginx-cm
+  
+--- 
+# Pod with ConfigMap 
+apiVersion: v1
+kind: Pod
+metadata:
+  name: payment
+spec:
+  containers:
+  - name: nginx-cnt
+    image: nginx:latest 
+    ports:
+      - containerPort: 80
+    envFrom:
+    - configMapRef:
+        name: nginx-cm
+    env: 
+      - name: APPNAME
+        value: "payment" 
+      - name: APP_OWNER
+        value: "team-x"
+      - name: BATCH         # If you wish to override the values from the configMap 
+        value: "60"

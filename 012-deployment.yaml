@@ -1,0 +1,42 @@
+### Deployment Set with Recreation Strategy
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: httpd-deployment
+  labels:
+    app: httpd
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 50
+  selector:
+    matchLabels:
+      app: httpd
+  template:
+    metadata:
+      labels:
+        app: httpd
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:              # port where your container listens
+        - containerPort: 80 
+
+--- 
+# ClusterIP is a service, that is used for inter-service communication and this cannot be accessed from the internet.
+apiVersion: v1
+kind: Service
+metadata:
+  name: httpd-svc
+spec:
+  selector:
+    app: httpd
+  ports:
+    - protocol: TCP
+      port: 80              # Port where your service listens against
+      targetPort: 80        # This is the port where kubernetes service will forward the request to associated pod 
+
+# IF you don't mention the service type, it's by default going to be ClusterIP
